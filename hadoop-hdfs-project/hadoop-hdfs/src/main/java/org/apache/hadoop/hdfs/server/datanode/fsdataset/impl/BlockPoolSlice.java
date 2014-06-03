@@ -27,6 +27,7 @@ import java.io.RandomAccessFile;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.DU;
+import org.apache.hadoop.fs.DFForUsage;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
 import org.apache.hadoop.hdfs.protocol.Block;
@@ -106,7 +107,11 @@ class BlockPoolSlice {
         throw new IOException("Mkdirs failed to create " + tmpDir.toString());
       }
     }
-    this.dfsUsage = new DU(bpDir, conf);
+    if (conf.getBoolean("hdfs.use.df.check.usage", true)) {
+      this.dfsUsage = new DFForUsage(bpDir, conf);
+    } else {
+      this.dfsUsage = new DU(bpDir, conf);
+    }
     this.dfsUsage.start();
   }
 
